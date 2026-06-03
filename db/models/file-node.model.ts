@@ -31,6 +31,7 @@ export const fileNodesTable = pgTable(
       .defaultNow()
       .$onUpdateFn(() => new Date())
       .notNull(),
+    isPublic: boolean("is_public").default(false).notNull(),
   },
   (table) => [unique().on(table.userId, table.parentId, table.name)],
 );
