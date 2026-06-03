@@ -22,6 +22,13 @@
       "when": 1780456570886,
       "tag": "0002_thin_kree",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1780469257738,
+      "tag": "0003_fine_chronomancer",
+      "breakpoints": true
     }
   ]
 }
