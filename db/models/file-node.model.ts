@@ -26,6 +26,7 @@ export const fileNodesTable = pgTable(
     type: nodeTypeEnum("type").notNull(),
     isFavorite: boolean("is_favorite").default(false).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    ext: varchar("ext", { length: 10 }),
     updatedAt: timestamp("updated_at")
       .defaultNow()
       .$onUpdateFn(() => new Date())

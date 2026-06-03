@@ -6,6 +6,7 @@ export const snippetSchema = z.object({
   name: z.string().min(1, "Name is required"),
   type: z.enum(["folder", "file"]),
   is_favorite: z.boolean(),
+  ext: z.string().max(10).optional(),
 });
 
 export type SnippetRequest = z.infer<typeof snippetSchema>;

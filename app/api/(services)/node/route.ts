@@ -1,14 +1,13 @@
 import { NextRequest } from "next/server";
-import { validateRequest } from "../../common/utils/zod-handler";
-import { snippetSchema } from "../../schema/snippets.schema";
-import { db } from "@/db";
-import { usersTable } from "@/db/models/users.model";
-import { eq } from "drizzle-orm";
+import { handleError } from "../../common/utils/error-handler.utils";
+import { snippetSchema } from "../../schema/node.schema";
 import ApiError from "../../common/utils/api-error.utils";
+import { db } from "@/db";
 import { fileNodesTable } from "@/db/models/file-node.model";
 import ApiResponse from "../../common/utils/api-response.utils";
-import { handleError } from "../../common/utils/error-handler.utils";
-import { snippetsTable } from "@/db/models/snippets.model";
+import { usersTable } from "@/db/models/users.model";
+import { eq } from "drizzle-orm";
+import { validateRequest } from "../../common/utils/zod-handler";
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,7 +23,7 @@ export async function POST(request: NextRequest) {
         { user_id: "No user found with the provided user_id" },
       ]);
 
-    const [nodeId] = await db
+    const nodeId = await db
       .insert(fileNodesTable)
       .values({
         userId: parseInt(user_id),
@@ -36,21 +35,8 @@ export async function POST(request: NextRequest) {
       .returning({
         id: fileNodesTable.id,
       });
-
-    const [snippetId] = await db
-      .insert(snippetsTable)
-      .values({
-        nodeId: nodeId.id,
-        title: name,
-        code: validatedData.code,
-        description: validatedData.description,
-        ext: validatedData.ext,
-      })
-      .returning({
-        id: snippetsTable.id,
-      });
     return ApiResponse.created("Snippet created successfully", {
-      id: snippetId.id,
+      id: nodeId[0].id,
     });
   } catch (error) {
     return handleError(error);

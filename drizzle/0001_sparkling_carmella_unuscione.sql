@@ -1,0 +1,1 @@
+ALTER TABLE "file_nodes" ADD COLUMN "ext" varchar(10);
