@@ -8,6 +8,8 @@ import ApiResponse from "../../common/utils/api-response.utils";
 import { usersTable } from "@/db/models/users.model";
 import { and, eq } from "drizzle-orm";
 import { validateRequest } from "../../common/utils/zod-handler";
+import { deleteNodeSchema } from "../../schema/deleteNode.schema";
+import { patchNodeSchema } from "../../schema/patchNode.schema";
 
 export async function POST(request: NextRequest) {
   try {
@@ -74,6 +76,51 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  try {
+    const parsedData = await request.json();
+    const { nodeId } = validateRequest(deleteNodeSchema, parsedData);
+    const existingNode = await db
+      .select()
+      .from(nodesTable)
+      .where(eq(nodesTable.id, nodeId));
+    if (existingNode.length === 0) {
+      throw ApiError.notFound("Node not found", [
+        { node_id: "No node found with the provided node_id" },
+      ]);
+    }
+    await db.delete(nodesTable).where(eq(nodesTable.id, nodeId));
+    return ApiResponse.ok("Node deleted successfully");
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const parsedData = await request.json();
+    const { nodeId } = validateRequest(patchNodeSchema, parsedData);
+    const existingNode = await db
+      .select()
+      .from(nodesTable)
+      .where(eq(nodesTable.id, nodeId));
+    if (existingNode.length === 0) {
+      throw ApiError.notFound("Node not found", [
+        { node_id: "No node found with the provided node_id" },
+      ]);
+    }
+    const updateData = { ...parsedData };
+    delete updateData.nodeId; // Remove nodeId from update data
+    await db
+      .update(nodesTable)
+      .set(updateData)
+      .where(eq(nodesTable.id, nodeId));
+    return ApiResponse.ok("Node updated successfully");
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
 async function validateParentId(parentId: number | null, userId: number) {
   if (!parentId)
     throw ApiError.badRequest("Parent folder is required for files", [
@@ -124,9 +171,4 @@ async function checkIfNodeAlreadyExists(
       ],
     );
   }
-}
-export async function GET() {
-  const users = await db.select().from(usersTable);
-
-  return Response.json(users);
 }

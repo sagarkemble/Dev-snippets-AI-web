@@ -20,7 +20,10 @@ export const nodesTable = pgTable(
     userId: integer("user_id")
       .notNull()
       .references(() => usersTable.id),
-    parentId: integer("parent_id").references((): AnyPgColumn => nodesTable.id),
+    parentId: integer("parent_id").references(
+      (): AnyPgColumn => nodesTable.id,
+      { onDelete: "cascade" },
+    ),
     type: nodeTypeEnum("type").notNull(),
     name: varchar("name", { length: 255 }).notNull(),
     description: varchar("description", { length: 500 }),
